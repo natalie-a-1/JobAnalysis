@@ -1,22 +1,7 @@
 'use client';
-import { GoTrash } from "react-icons/go";
-import { useState } from 'react';
-
-// Mapping for experience levels and employment types
-const experienceLevelMapping = {
-    'Entry': 'EN',
-    'Mid': 'MI',
-    'Senior': 'SE',
-    'Lead': 'LE'
-};
-
-const employmentTypeMapping = {
-    'Full-time': 'FT',
-    'Part-time': 'PT',
-    'Contract': 'CT',
-    'Temporary': 'TP',
-    'Other': 'OT'
-};
+import React, { useState } from 'react';
+import { GoTrash } from 'react-icons/go';
+import { experienceLevelMapping, employmentTypeMapping, companySizeMapping } from '@/utils/mappings';
 
 export default function FilterComponent({ onFilterChange }) {
     const [filters, setFilters] = useState({
@@ -35,12 +20,12 @@ export default function FilterComponent({ onFilterChange }) {
         };
         setFilters(updatedFilters);
 
-        // Send the updated filters to the parent component
+        // Send the updated filters to the parent component with mapped values
         onFilterChange({
             ...updatedFilters,
-            // Map the user-friendly options to their CSV codes
-            experienceLevel: experienceLevelMapping[updatedFilters.experienceLevel] || updatedFilters.experienceLevel,
-            employmentType: employmentTypeMapping[updatedFilters.employmentType] || updatedFilters.employmentType,
+            experienceLevel: experienceLevelMapping[updatedFilters.experienceLevel] || "",
+            employmentType: employmentTypeMapping[updatedFilters.employmentType] || "",
+            companySize: companySizeMapping[updatedFilters.companySize] || ""
         });
     };
 
@@ -53,7 +38,7 @@ export default function FilterComponent({ onFilterChange }) {
             companySize: ""
         };
         setFilters(defaultFilters);
-        onFilterChange(defaultFilters); // Reset the filters in the parent component as well
+        onFilterChange(defaultFilters);
     };
 
     return (
@@ -63,6 +48,7 @@ export default function FilterComponent({ onFilterChange }) {
                 <GoTrash className="text-gray-600 cursor-pointer hover:text-gray-800" onClick={resetFilters} />
             </div>
             <div className="space-y-6">
+                {/* Work Year Filter */}
                 <div>
                     <label className="block mb-2 font-semibold text-gray-700">Work Year</label>
                     <select
@@ -79,6 +65,8 @@ export default function FilterComponent({ onFilterChange }) {
                         <option value="2024">2024</option>
                     </select>
                 </div>
+
+                {/* Experience Level Filter */}
                 <div>
                     <label className="block mb-2 font-semibold text-gray-700">Experience Level</label>
                     <select
@@ -94,6 +82,8 @@ export default function FilterComponent({ onFilterChange }) {
                         <option value="Lead">Lead</option>
                     </select>
                 </div>
+
+                {/* Employment Type Filter */}
                 <div>
                     <label className="block mb-2 font-semibold text-gray-700">Employment Type</label>
                     <select
@@ -110,6 +100,8 @@ export default function FilterComponent({ onFilterChange }) {
                         <option value="Other">Other</option>
                     </select>
                 </div>
+
+                {/* Salary Filter */}
                 <div>
                     <label className="block mb-2 font-semibold text-gray-700">Salary in USD</label>
                     <select
@@ -129,6 +121,8 @@ export default function FilterComponent({ onFilterChange }) {
                         <option value="250000">250,000+</option>
                     </select>
                 </div>
+
+                {/* Company Size Filter */}
                 <div>
                     <label className="block mb-2 font-semibold text-gray-700">Company Size</label>
                     <select
@@ -137,7 +131,7 @@ export default function FilterComponent({ onFilterChange }) {
                         onChange={handleFilterChange}
                         className="form-select mt-1 block w-full p-2 border border-gray-300 rounded focus:ring-blue-500"
                     >
-                        <option value="">Select Size</option>
+                        <option value="">Select Company Size</option>
                         <option value="Small">Small (1-50 employees)</option>
                         <option value="Medium">Medium (51-200 employees)</option>
                         <option value="Large">Large (201+ employees)</option>

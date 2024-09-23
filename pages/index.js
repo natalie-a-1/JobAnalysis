@@ -1,8 +1,9 @@
-'use client';
+"use client";
 import React, { useEffect, useState } from "react";
 import FilterComponent from "@/app/components/FilterComponent";
 import JobCard from "@/app/components/JobCard";
 import JobAnalysis from "@/app/components/JobAnalysis";
+import { employmentTypeMapping, experienceLevelMapping, companySizeMapping } from "@/utils/mappings";
 
 const itemsPerPage = 21;
 
@@ -11,21 +12,48 @@ export default function Home() {
   const [currentPage, setCurrentPage] = useState(1);
   const [filteredEntries, setFilteredEntries] = useState([]);
   const [showAnalysis, setShowAnalysis] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     async function fetchJobs() {
-      const response = await fetch('/api/salaries');
-      const data = await response.json();
-      setJobEntries(data);
-      setFilteredEntries(data);
+      try {
+        const response = await fetch("/api/salaries");
+        if (!response.ok) {
+          throw new Error("Failed to fetch job data");
+        }
+        const data = await response.json();
+        setJobEntries(data);
+        setFilteredEntries(data);
+        setIsLoading(false);
+      } catch (error) {
+        console.error(error);
+        setError("Failed to fetch job data.");
+        setIsLoading(false);
+      }
     }
     fetchJobs();
   }, []);
 
   const handleFilterChange = (filters) => {
-    // Add filtering logic here based on filters
-    // Example for workYear filter (add others as needed):
-    const filtered = jobEntries.filter(job => job.work_year === filters.workYear);
+    let filtered = jobEntries;
+
+    if (filters.workYear) {
+      filtered = filtered.filter((job) => job.work_year.toString() === filters.workYear);
+    }
+    if (filters.experienceLevel) {
+      filtered = filtered.filter((job) => job.experience_level === filters.experienceLevel);
+    }
+    if (filters.employmentType) {
+      filtered = filtered.filter((job) => job.employment_type === filters.employmentType);
+    }
+    if (filters.salaryInUsd) {
+      filtered = filtered.filter((job) => parseInt(job.salary_in_usd, 10) >= parseInt(filters.salaryInUsd, 10));
+    }
+    if (filters.companySize) {
+      filtered = filtered.filter((job) => job.company_size === filters.companySize);
+    }
+
     setFilteredEntries(filtered);
     setCurrentPage(1);
   };
@@ -34,6 +62,14 @@ export default function Home() {
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentJobEntries = filteredEntries.slice(indexOfFirstItem, indexOfLastItem);
   const totalPages = Math.ceil(filteredEntries.length / itemsPerPage);
+
+  if (isLoading) {
+    return <div>Loading job data...</div>;
+  }
+
+  if (error) {
+    return <div>{error}</div>;
+  }
 
   if (!filteredEntries.length && !showAnalysis) {
     return <div>No job data available.</div>;
@@ -45,17 +81,13 @@ export default function Home() {
         <nav className="container mx-auto px-6 py-3 flex justify-center">
           <div className="flex items-center space-x-4">
             <button
-              className={`text-blue-500 hover:text-blue-700 ${
-                !showAnalysis ? "font-bold" : ""
-              }`}
+              className={`text-blue-500 hover:text-blue-700 ${!showAnalysis ? "font-bold" : ""}`}
               onClick={() => setShowAnalysis(false)}
             >
               Job Data
             </button>
             <button
-              className={`text-blue-500 hover:text-blue-700 ${
-                showAnalysis ? "font-bold" : ""
-              }`}
+              className={`text-blue-500 hover:text-blue-700 ${showAnalysis ? "font-bold" : ""}`}
               onClick={() => setShowAnalysis(true)}
             >
               Job Analysis
@@ -73,22 +105,20 @@ export default function Home() {
             ))}
             <div className="w-full col-span-full flex flex-col items-center justify-center space-y-4">
               <button
-                onClick={() => setCurrentPage(page => Math.max(1, page - 1))}
+                onClick={() => setCurrentPage((page) => Math.max(1, page - 1))}
                 disabled={currentPage === 1}
                 className="bg-gray-300 text-gray-700 px-4 py-2 rounded disabled:bg-gray-100"
               >
                 Previous
               </button>
               <button
-                onClick={() => setCurrentPage(page => Math.min(totalPages, page + 1))}
+                onClick={() => setCurrentPage((page) => Math.min(totalPages, page + 1))}
                 disabled={currentPage === totalPages}
                 className="bg-gray-300 text-gray-700 px-4 py-2 rounded disabled:bg-gray-100"
               >
                 Next
               </button>
-              <div className="text-gray-700">
-                Page {currentPage} of {totalPages}
-              </div>
+              <div className="text-gray-700">Page {currentPage} of {totalPages}</div>
             </div>
           </div>
         )}
