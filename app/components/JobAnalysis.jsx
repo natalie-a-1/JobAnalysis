@@ -1,4 +1,8 @@
 import { useState } from 'react';
+import ClassificationAnalysis from './ClassificationAnalysis';
+import ClusteringAnalysis from './ClusteringAnalysis';
+import TimeSeriesAnalysis from './TimeSeriesAnalysis';
+import OutlierDetectionAnalysis from './OutlierDetectionAnalysis';
 
 export default function JobAnalysis() {
   const [selectedAnalysis, setSelectedAnalysis] = useState(null);
@@ -10,13 +14,13 @@ export default function JobAnalysis() {
   const renderAnalysis = () => {
     switch (selectedAnalysis) {
       case 'classification':
-        return <div>Performing Classification Analysis...</div>; // Placeholder for classification analysis
+        return <ClassificationAnalysis />;
       case 'clustering':
-        return <div>Performing Clustering Analysis...</div>; // Placeholder for clustering analysis
+        return <ClusteringAnalysis />;
       case 'time-series':
-        return <div>Performing Time-Series Analysis...</div>; // Placeholder for time-series analysis
+        return <TimeSeriesAnalysis />;
       case 'outlier-detection':
-        return <div>Performing Outlier Detection Analysis...</div>; // Placeholder for outlier detection analysis
+        return <OutlierDetectionAnalysis />;
       default:
         return <div>Please select an analysis type to begin.</div>;
     }
